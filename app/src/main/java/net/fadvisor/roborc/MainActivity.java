@@ -12,15 +12,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static TextView tv1;
+    private static TextView tv2;
+
+    private static MySeekBar sb1;
+    private static MySeekBar sb2;
+
+    private int mProgressStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final View rl2 = findViewById(R.id.rl2);
+
+        tv1 = (TextView) findViewById(R.id.tv1);
+        tv2 = (TextView) findViewById(R.id.tv2);
+
+        sb1 = (MySeekBar) findViewById(R.id.sb1);
+        sb2 = (MySeekBar) findViewById(R.id.sb2);
 
         rl2.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressWarnings("deprecation")
@@ -42,6 +57,40 @@ public class MainActivity extends ActionBarActivity {
                     rl2.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
+
+        new Thread(new Runnable() {
+            public void run() {
+                while (mProgressStatus < 100) {
+                    mProgressStatus = mProgressStatus+1;
+
+                    // Update the progress bar
+                    sb1.post(new Runnable() {
+                        public void run() {
+                            sb1.setProgress(mProgressStatus);
+                        }
+                    });
+                }
+            }
+        }).start();
+
+    }
+
+    public static void UpdateText(View v, String text) {
+        if ( v.getId() == R.id.sb1) {
+            tv1.setText(text);
+        } else if ( v.getId() == R.id.sb2) {
+            tv2.setText(text);
+        }
+    }
+
+    public static void ResetSeekBar(View v) {
+        if ( v.getId() == R.id.sb1) {
+            sb1.setProgress(50);
+
+        } else if ( v.getId() == R.id.sb2) {
+            sb2.setProgress(50);
+
+        }
     }
 
 
