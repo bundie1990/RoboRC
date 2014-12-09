@@ -16,16 +16,18 @@ public class MySeekBar extends SeekBar {
     }
 
     public boolean onTouchEvent(final MotionEvent event) {
+        super.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Log.d("tag", "UP");
             MainActivity.ResetSeekBar(this);
+            MainActivity.SeekBarUpdated(this, Integer.toString(getProgress()));
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             Log.d("tag", Integer.toString(getProgress()));
-            MainActivity.UpdateText(this, Integer.toString(getProgress()));
+            MainActivity.SeekBarUpdated(this, Integer.toString(getProgress()));
         } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
             Log.d("tag", "DOWN ");
-            MainActivity.UpdateText(this, Integer.toString(getProgress()));
+            MainActivity.SeekBarUpdated(this, Integer.toString(getProgress()));
         }
-        return super.onTouchEvent(event);
+        return true;
     }
 }

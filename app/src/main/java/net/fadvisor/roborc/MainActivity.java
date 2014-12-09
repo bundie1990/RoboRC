@@ -5,14 +5,13 @@
 
 package net.fadvisor.roborc;
 
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -37,18 +36,6 @@ public class MainActivity extends ActionBarActivity {
         sb1 = (MySeekBar) findViewById(R.id.sb1);
         sb2 = (MySeekBar) findViewById(R.id.sb2);
 
-
-        Button btn = (Button) findViewById(R.id.button);
-        btn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                sb1.setProgress(40);
-                sb2.setProgress(60);
-            }
-        });
-
         // When the layout rl2 is created rotate it and swap height and width values
         rl2.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressWarnings("deprecation")
@@ -72,28 +59,37 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public static void UpdateText(View v, String text) {
-        if ( v.getId() == R.id.sb1) {
+    public static void SeekBarUpdated(View v, String text) {
+        if (v.getId() == R.id.sb1) {
             tv1.setText(text);
-        } else if ( v.getId() == R.id.sb2) {
+        } else if (v.getId() == R.id.sb2) {
             tv2.setText(text);
         }
     }
 
-    public static void ResetSeekBar(View v) {
-        if ( v.getId() == R.id.sb1) {
-            Log.d("before", "Progress = " + Integer.toString(sb1.getProgress()));
-            sb1.setProgress(50);
-            Log.d("after", "Progress = " + Integer.toString(sb1.getProgress()));
-            sb1.invalidate();
-            //sb1.requestLayout();
+    public static void ResetSeekBar(final View v) {
+        final MySeekBar tempsb;
+        if (v.getId() == R.id.sb1) {
+            tempsb = sb1;
 
-        } else if ( v.getId() == R.id.sb2) {
-            sb2.setProgress(50);
-
+        } else {
+            tempsb = sb2;
         }
-    }
 
+        ValueAnimator anim = ValueAnimator.ofInt(tempsb.getProgress(), 50);
+        anim.setDuration(100);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animProgress = (Integer) animation.getAnimatedValue();
+                tempsb.setProgress(animProgress);
+                if (animProgress == 50) {
+                    SeekBarUpdated(v, "50");
+                }
+            }
+        });
+        anim.start();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
