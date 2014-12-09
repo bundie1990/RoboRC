@@ -5,12 +5,14 @@
 
 package net.fadvisor.roborc;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,8 +24,6 @@ public class MainActivity extends ActionBarActivity {
 
     private static MySeekBar sb1;
     private static MySeekBar sb2;
-
-    private int mProgressStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +37,19 @@ public class MainActivity extends ActionBarActivity {
         sb1 = (MySeekBar) findViewById(R.id.sb1);
         sb2 = (MySeekBar) findViewById(R.id.sb2);
 
+
+        Button btn = (Button) findViewById(R.id.button);
+        btn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                sb1.setProgress(40);
+                sb2.setProgress(60);
+            }
+        });
+
+        // When the layout rl2 is created rotate it and swap height and width values
         rl2.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressWarnings("deprecation")
             @Override
@@ -57,22 +70,6 @@ public class MainActivity extends ActionBarActivity {
                     rl2.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
-
-        new Thread(new Runnable() {
-            public void run() {
-                while (mProgressStatus < 100) {
-                    mProgressStatus = mProgressStatus+1;
-
-                    // Update the progress bar
-                    sb1.post(new Runnable() {
-                        public void run() {
-                            sb1.setProgress(mProgressStatus);
-                        }
-                    });
-                }
-            }
-        }).start();
-
     }
 
     public static void UpdateText(View v, String text) {
@@ -85,7 +82,11 @@ public class MainActivity extends ActionBarActivity {
 
     public static void ResetSeekBar(View v) {
         if ( v.getId() == R.id.sb1) {
+            Log.d("before", "Progress = " + Integer.toString(sb1.getProgress()));
             sb1.setProgress(50);
+            Log.d("after", "Progress = " + Integer.toString(sb1.getProgress()));
+            sb1.invalidate();
+            //sb1.requestLayout();
 
         } else if ( v.getId() == R.id.sb2) {
             sb2.setProgress(50);

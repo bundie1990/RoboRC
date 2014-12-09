@@ -39,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:rotation="90"
-                android:text="New Button" />
+                android:text="Test SB Set" />
 
             <ToggleButton
                 android:layout_width="wrap_content"

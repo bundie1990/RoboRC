@@ -17,13 +17,13 @@ public class MySeekBar extends SeekBar {
 
     public boolean onTouchEvent(final MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            Log.v("tag", "UP");
+            Log.d("tag", "UP");
             MainActivity.ResetSeekBar(this);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            Log.v("tag", Integer.toString(getProgress()));
+            Log.d("tag", Integer.toString(getProgress()));
             MainActivity.UpdateText(this, Integer.toString(getProgress()));
         } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.v("tag", "DOWN ");
+            Log.d("tag", "DOWN ");
             MainActivity.UpdateText(this, Integer.toString(getProgress()));
         }
         return super.onTouchEvent(event);
