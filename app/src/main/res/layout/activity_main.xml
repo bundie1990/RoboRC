@@ -8,8 +8,7 @@
     <RelativeLayout
         android:id="@+id/rl2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content">
 
         <net.fadvisor.roborc.MySeekBar
             android:id="@+id/sb1"
@@ -51,18 +50,21 @@
 
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/buttonTest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:rotation="90"
+                android:onClick="TestClick"
                 android:text="Test" />
 
             <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New ToggleButton"
-                android:id="@+id/toggleButton"
-                android:rotation="90" />
+                android:id="@+id/btConnect"
+                android:onClick="btConnectClick"
+                android:rotation="90"
+                android:textOff="@string/btConnectOff"
+                android:textOn="@string/btConnectOn" />
 
             <TextView
                 android:layout_width="50dp"
