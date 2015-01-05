@@ -442,7 +442,9 @@ public class BluetoothService {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    String tmp = String.format("(%02x,%02x)\n", MainActivity.sb1.getProgress(), MainActivity.sb2.getProgress());
+                    // The range for each slider is 0 to 100, so it fits inside one byte [0 - 255]
+                    // ASCII code for f is 102 which is outside the slider range, so it is used to indicate the start of a new pair
+                    String tmp = String.format("f%c%c", MainActivity.sb1.getProgress(), MainActivity.sb2.getProgress());
                     byte[] buffer = tmp.getBytes();
 
                     try {
