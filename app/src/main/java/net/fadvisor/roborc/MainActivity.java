@@ -37,8 +37,6 @@ public class MainActivity extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
     public static MySeekBar sb1;
     public static MySeekBar sb2;
-    private static TextView tv1;
-    private static TextView tv2;
     private ToggleButton btConnect;
     // Name of the connected device
     private String mConnectedDeviceName = null;
@@ -62,44 +60,40 @@ public class MainActivity extends Activity {
                     }
                     break;
                 case MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
+                    // byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
+                    // String writeMessage = new String(writeBuf);
                     //                   mConversationArrayAdapter.add("Me:  " + writeMessage);
                     break;
                 case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
+                    // byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    // String readMessage = new String(readBuf, 0, msg.arg1);
                     //                   mConversationArrayAdapter.add(mConnectedDeviceName+":  " + readMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(), "Connected to "
-                            + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+
+                    // Turn connect button on
+                    btConnect.setEnabled(true);
+                    btConnect.setChecked(true);
+
                     break;
                 case MESSAGE_TOAST:
-                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+                    btConnect.setEnabled(true);
                     break;
             }
         }
     };
     // String buffer for outgoing messages
-    private StringBuffer mOutStringBuffer;
+//    private StringBuffer mOutStringBuffer;
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the bluetooth services
     private BluetoothService btService = null;
-
-    public static void SeekBarUpdated(View v, String text) {
-        if (v.getId() == R.id.sb1) {
-            tv1.setText(text);
-        } else if (v.getId() == R.id.sb2) {
-            tv2.setText(text);
-        }
-    }
 
     public static void ResetSeekBar(final View v) {
         final MySeekBar tempsb;
@@ -117,9 +111,6 @@ public class MainActivity extends Activity {
             public void onAnimationUpdate(ValueAnimator animation) {
                 int animProgress = (Integer) animation.getAnimatedValue();
                 tempsb.setProgress(animProgress);
-                if (animProgress == 50) {
-                    SeekBarUpdated(v, "50");
-                }
             }
         });
         anim.start();
@@ -131,16 +122,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         final View rl2 = findViewById(R.id.rl2);
 
-        tv1 = (TextView) findViewById(R.id.tv1);
-        tv2 = (TextView) findViewById(R.id.tv2);
-
         sb1 = (MySeekBar) findViewById(R.id.sb1);
         sb2 = (MySeekBar) findViewById(R.id.sb2);
 
         btConnect = (ToggleButton) findViewById(R.id.btConnect);
-//        btConnect.setOnTouchListener(new View.OnTouchListener() {
-//
-//        });
 
         // When the layout rl2 is created rotate it and swap height and width values
         rl2.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -189,16 +174,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void TestClick(View v) {
-        byte[] send = "Hi".getBytes();
-        btService.write(send);
-    }
-
     public void btConnectClick(View v) {
         if (btConnect.isChecked()) {
             // Launch the DeviceListActivity to see devices and do scan
             Intent serverIntent = new Intent(this, DeviceListActivity.class);
             startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+            btConnect.setChecked(false);
+            btConnect.setEnabled(false);
         } else {
             btService.stop();
         }
@@ -217,6 +199,7 @@ public class MainActivity extends Activity {
                     btService.connect(device);
                 } else {
                     btConnect.setChecked(false);
+                    btConnect.setEnabled(true);
                 }
                 break;
             case REQUEST_ENABLE_BT:
@@ -260,7 +243,7 @@ public class MainActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Stop the Bluetooth chat services
-//        if (btService != null) btService.stop();
+        // Stop the Bluetooth services
+        if (btService != null) btService.stop();
     }
 }

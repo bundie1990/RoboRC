@@ -46,16 +46,9 @@
             android:layout_height="fill_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:gravity="center">
+            android:gravity="center_vertical|right"
+            android:padding="10dp">
 
-
-            <Button
-                android:id="@+id/buttonTest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:rotation="90"
-                android:onClick="TestClick"
-                android:text="Test" />
 
             <ToggleButton
                 android:layout_width="wrap_content"
@@ -65,21 +58,6 @@
                 android:rotation="90"
                 android:textOff="@string/btConnectOff"
                 android:textOn="@string/btConnectOn" />
-
-            <TextView
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:text="50"
-                android:rotation="90"
-                android:id="@+id/tv1" />
-
-            <TextView
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:text="50"
-                android:rotation="90"
-                android:id="@+id/tv2"
-                android:singleLine="true" />
 
         </LinearLayout>
     </RelativeLayout>
