@@ -34,11 +34,11 @@
             android:thumb="@drawable/seek_thumb"
             android:background="@drawable/seek_back_dark"
             android:progressDrawable="@android:color/transparent"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp" />
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp" />
 
         <LinearLayout
             android:orientation="horizontal"
