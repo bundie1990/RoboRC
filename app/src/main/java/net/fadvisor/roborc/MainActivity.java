@@ -10,16 +10,15 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 
 public class MainActivity extends Activity {
 
@@ -35,9 +34,11 @@ public class MainActivity extends Activity {
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
+
     public static MySeekBar sb1;
     public static MySeekBar sb2;
     private ToggleButton btConnect;
+
     // Name of the connected device
     private String mConnectedDeviceName = null;
     private final Handler mHandler = new Handler() {
@@ -89,32 +90,11 @@ public class MainActivity extends Activity {
         }
     };
     // String buffer for outgoing messages
-//    private StringBuffer mOutStringBuffer;
+//    private StringBuffer mOutStringBuffer; // I will use it later to send info about battery power (Low battery?)
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the bluetooth services
     private BluetoothService btService = null;
-
-    public static void ResetSeekBar(final View v) {
-        final MySeekBar tempsb;
-        if (v.getId() == R.id.sb1) {
-            tempsb = sb1;
-
-        } else {
-            tempsb = sb2;
-        }
-
-        ValueAnimator anim = ValueAnimator.ofInt(tempsb.getProgress(), 50);
-        anim.setDuration(100);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int animProgress = (Integer) animation.getAnimatedValue();
-                tempsb.setProgress(animProgress);
-            }
-        });
-        anim.start();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,10 +102,22 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         final View rl2 = findViewById(R.id.rl2);
 
+        FullscreenUI();
+
         sb1 = (MySeekBar) findViewById(R.id.sb1);
         sb2 = (MySeekBar) findViewById(R.id.sb2);
 
         btConnect = (ToggleButton) findViewById(R.id.btConnect);
+
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, getString(R.string.btNotAvailable), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         // When the layout rl2 is created rotate it and swap height and width values
         rl2.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -148,16 +140,27 @@ public class MainActivity extends Activity {
                     rl2.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
+    }
 
-        // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    public static void ResetSeekBar(final View v) {
+        final MySeekBar tempsb;
+        if (v.getId() == R.id.sb1) {
+            tempsb = sb1;
 
-        // If the adapter is null, then Bluetooth is not supported
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, getString(R.string.btNotAvailable), Toast.LENGTH_LONG).show();
-            finish();
-            return;
+        } else {
+            tempsb = sb2;
         }
+
+        ValueAnimator anim = ValueAnimator.ofInt(tempsb.getProgress(), 50);
+        anim.setDuration(100);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animProgress = (Integer) animation.getAnimatedValue();
+                tempsb.setProgress(animProgress);
+            }
+        });
+        anim.start();
     }
 
     @Override
@@ -219,6 +222,8 @@ public class MainActivity extends Activity {
     public synchronized void onResume() {
         super.onResume();
 
+        FullscreenUI();
+
         // Performing this check in onResume() covers the case in which BT was
         // not enabled during onStart(), so we were paused to enable it...
         // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
@@ -231,19 +236,30 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public synchronized void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         // Stop the Bluetooth services
         if (btService != null) btService.stop();
+    }
+
+    public void FullscreenUI() {
+        int newUiOptions = 0;
+
+        // Navigation bar hiding:  Backwards compatible to ICS.
+        if (Build.VERSION.SDK_INT >= 14) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        }
+
+        // Status bar hiding: Backwards compatible to Jellybean
+        if (Build.VERSION.SDK_INT >= 16) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        // Immersive mode: Backward compatible to KitKat.
+        if (Build.VERSION.SDK_INT >= 18) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
     }
 }

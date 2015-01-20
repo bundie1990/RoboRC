@@ -23,6 +23,10 @@ public class MySeekBar extends SeekBar {
 //            //Log.d("tag", Integer.toString(getProgress()));
 //        } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
 //            //Log.d("tag", "DOWN ");
+        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+            // When orientation changes reset the SeekBars since they get stock when device
+            // is flipped by mistake.
+            MainActivity.ResetSeekBar(this);
         }
         return true;
     }
