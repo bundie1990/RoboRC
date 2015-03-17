@@ -14,6 +14,7 @@ public class MySeekBar extends SeekBar {
         super(context, attrs);
     }
 
+    @Override
     public boolean onTouchEvent(final MotionEvent event) {
         super.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_UP) {
