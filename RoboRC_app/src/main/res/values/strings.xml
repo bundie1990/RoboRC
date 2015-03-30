@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">RoboRC</string>
+    <string name="app_name">Robo RC</string>
     <string name="btConnectOff">Connect</string>
     <string name="btConnectOn">Connected</string>
     <string name="btNotAvailable">Bluetooth is not available</string>
