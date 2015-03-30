@@ -10,6 +10,12 @@ import android.view.MotionEvent;
 import android.widget.SeekBar;
 
 public class MySeekBar extends SeekBar {
+    public MySeekBar(Context context) {
+        super(context);
+    }
+    public MySeekBar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
     public MySeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -17,17 +23,21 @@ public class MySeekBar extends SeekBar {
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         super.onTouchEvent(event);
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            //Log.d("tag", "UP");
-            MainActivity.ResetSeekBar(this);
-//        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//            //Log.d("tag", Integer.toString(getProgress()));
-//        } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//            //Log.d("tag", "DOWN ");
-        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
-            // When orientation changes reset the SeekBars since they get stock when device
-            // is flipped by mistake.
-            MainActivity.ResetSeekBar(this);
+        if (!isEnabled()) {
+            return false;
+        }
+
+        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                break;
+            case MotionEvent.ACTION_UP:
+                MainActivity.ResetSeekBar(this);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                MainActivity.ResetSeekBar(this);
+                break;
         }
         return true;
     }

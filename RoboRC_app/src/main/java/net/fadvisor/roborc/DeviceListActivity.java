@@ -215,11 +215,13 @@ public class DeviceListActivity extends Activity {
         }
 
         // Immersive mode: Backward compatible to KitKat.
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 19) {
             newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
 
-        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        if (Build.VERSION.SDK_INT >= 11) {
+            this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        }
     }
 
 }

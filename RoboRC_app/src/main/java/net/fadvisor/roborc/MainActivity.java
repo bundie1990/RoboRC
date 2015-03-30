@@ -6,9 +6,11 @@
 package net.fadvisor.roborc;
 
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +27,8 @@ import com.google.android.gms.ads.AdView;
 
 public class MainActivity extends Activity {
 
+    public static volatile Context myContext;
+
     // Message types sent from the BluetoothService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -40,47 +44,26 @@ public class MainActivity extends Activity {
 
     public static MySeekBar sb1;
     public static MySeekBar sb2;
-    private ToggleButton btConnect;
+    private static ToggleButton btConnect;
 
-    private AdView mAdView;
-
-    // Name of the connected device
-    private String mConnectedDeviceName = null;
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case BluetoothService.STATE_CONNECTED:
-                            //mTitle.setText(R.string.title_connected_to);
-                            //mTitle.append(mConnectedDeviceName);
-                            break;
-                        case BluetoothService.STATE_CONNECTING:
-                            //mTitle.setText(R.string.title_connecting);
-                            break;
-                        case BluetoothService.STATE_LISTEN:
-                        case BluetoothService.STATE_NONE:
-                            //mTitle.setText(R.string.title_not_connected);
-                            break;
-                    }
-                    break;
                 case MESSAGE_WRITE:
                     // byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
                     // String writeMessage = new String(writeBuf);
-                    //                   mConversationArrayAdapter.add("Me:  " + writeMessage);
                     break;
                 case MESSAGE_READ:
                     // byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     // String readMessage = new String(readBuf, 0, msg.arg1);
-                    //                   mConversationArrayAdapter.add(mConnectedDeviceName+":  " + readMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    // show the connected device's name
+                    String mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(myContext, "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 
                     // Turn connect button on
                     btConnect.setEnabled(true);
@@ -88,7 +71,7 @@ public class MainActivity extends Activity {
 
                     break;
                 case MESSAGE_TOAST:
-                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(myContext, msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
                     btConnect.setEnabled(true);
                     break;
             }
@@ -104,6 +87,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         final View rl2 = findViewById(R.id.rl2);
 
@@ -133,11 +117,13 @@ public class MainActivity extends Activity {
 
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(h, w);
                 rl2.setLayoutParams(params);
-                rl2.setRotation(270.0f);
-                rl2.setTranslationX((w - h) / 2);
-                rl2.setTranslationY((h - w) / 2);
+                if (android.os.Build.VERSION.SDK_INT >= 11) {
+                    rl2.setRotation(270.0f);
+                    rl2.setTranslationX((w - h) / 2);
+                    rl2.setTranslationY((h - w) / 2);
+                }
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
+                if (android.os.Build.VERSION.SDK_INT >= 16)
                     rl2.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 else
                     rl2.getViewTreeObserver().removeGlobalOnLayoutListener(this);
@@ -146,7 +132,7 @@ public class MainActivity extends Activity {
 
         // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
         // values/strings.xml.
-        mAdView = (AdView) findViewById(R.id.adView);
+        AdView mAdView = (AdView) findViewById(R.id.adView);
 
         // Create an ad request. Check logcat output for the hashed device ID to
         // get test ads on a physical device. e.g.
@@ -171,28 +157,31 @@ public class MainActivity extends Activity {
         } else {
             tempsb = sb2;
         }
+        if (Build.VERSION.SDK_INT >= 11) {
+            ValueAnimator anim = ValueAnimator.ofInt(tempsb.getProgress(), 50);
+            anim.setDuration(100);
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    int animProgress = (Integer) animation.getAnimatedValue();
+                    tempsb.setProgress(animProgress);
+                }
+            });
+            anim.start();
+        } else {
+            tempsb.setProgress(50);
+        }
 
-        ValueAnimator anim = ValueAnimator.ofInt(tempsb.getProgress(), 50);
-        anim.setDuration(100);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int animProgress = (Integer) animation.getAnimatedValue();
-                tempsb.setProgress(animProgress);
-            }
-        });
-        anim.start();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         // If BT is not on, request that it be enabled.
-        // setupChat() will then be called during onActivityResult
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-            // Otherwise, setup the chat session
         } else {
             if (btService == null) btService = new BluetoothService(this, mHandler);
         }
@@ -277,10 +266,12 @@ public class MainActivity extends Activity {
         }
 
         // Immersive mode: Backward compatible to KitKat.
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 19) {
             newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
 
-        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        if (Build.VERSION.SDK_INT >= 11) {
+            this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        }
     }
 }
