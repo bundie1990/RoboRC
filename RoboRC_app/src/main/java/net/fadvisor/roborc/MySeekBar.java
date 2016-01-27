@@ -13,11 +13,11 @@ public class MySeekBar extends SeekBar {
     public MySeekBar(Context context) {
         super(context);
     }
-    public MySeekBar(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
     public MySeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+    public MySeekBar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
 
     @Override
