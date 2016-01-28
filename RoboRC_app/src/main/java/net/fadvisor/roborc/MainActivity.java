@@ -21,7 +21,8 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
-import android.widget.GridLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -116,12 +117,12 @@ public class MainActivity extends Activity {
             sbR.setRotation(360);
         }
 
-        GridLayout mainGrid = (GridLayout)findViewById(R.id.mainGrid);
+        RelativeLayout mainGrid = (RelativeLayout)findViewById(R.id.mainGrid);
         mainGrid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressWarnings("deprecation")
             @Override
             public void onGlobalLayout() {
-                GridLayout mainGrid = (GridLayout) findViewById(R.id.mainGrid);
+                RelativeLayout mainGrid = (RelativeLayout) findViewById(R.id.mainGrid);
                 resizeMainGrid(mainGrid);
 
                 if (android.os.Build.VERSION.SDK_INT >= 16)
@@ -138,11 +139,11 @@ public class MainActivity extends Activity {
         mContentView = this.getWindow().getDecorView();
     }
 
-    public void resizeMainGrid (GridLayout mainGrid) {
+    public void resizeMainGrid (RelativeLayout mainGrid) {
         LinearLayout centerLL;
 
-        int centerWidth = (int) (mainGrid.getWidth() - mainGrid.getChildAt(1).getWidth() - mainGrid.getChildAt(2).getWidth());
-        int centerHeight = (int) (mainGrid.getHeight() - mainGrid.getChildAt(1).getHeight());
+        int centerWidth = mainGrid.getWidth() - mainGrid.getChildAt(1).getWidth() - mainGrid.getChildAt(2).getWidth();
+        int centerHeight = mainGrid.getHeight() - mainGrid.getChildAt(1).getHeight();
 
         // The first element in the xml file must be the central one with the connect button
         centerLL = (LinearLayout) mainGrid.getChildAt(0);
@@ -270,7 +271,7 @@ public class MainActivity extends Activity {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedFullscreenUI(300);
+        delayedFullscreenUI(2000);
 
         // Performing this check in onResume() covers the case in which BT was
         // not enabled during onStart(), so we were paused to enable it...
@@ -297,20 +298,22 @@ public class MainActivity extends Activity {
     private final Handler mHideHandler = new Handler();
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
-        //@SuppressLint("InlinedApi")
+        @SuppressLint("InlinedApi")
         @Override
         public void run() {
             // Delayed removal of status and navigation bar
 
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
-            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+            int newUiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION      // Enabling these two ignores first touch on the app!!
-//                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION             // I should test on other apis to see if i need them
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+            if (Build.VERSION.SDK_INT > 16) {
+                newUiOptions ^= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            }
+
+            mContentView.setSystemUiVisibility(newUiOptions);
         }
     };
 
@@ -321,5 +324,29 @@ public class MainActivity extends Activity {
     private void delayedFullscreenUI(int delayMillis) {
         mHideHandler.removeCallbacks(mHidePart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, delayMillis);
+    }
+
+    public void batteryn(View view) {
+        ProgressBar pb = (ProgressBar) findViewById(R.id.pbBatteryLevel);
+        int prog = pb.getProgress() - 10;
+        pb.setProgress(prog);
+
+        if (prog <= 20) {
+            pb.getProgressDrawable().setColorFilter(0xFFFF0000,android.graphics.PorterDuff.Mode.MULTIPLY);
+        } else if (prog <= 50) {
+            pb.getProgressDrawable().setColorFilter(0xFFFFFF00,android.graphics.PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    public void batteryp(View view) {
+        ProgressBar pb = (ProgressBar) findViewById(R.id.pbBatteryLevel);
+        int prog = pb.getProgress() + 10;
+        pb.setProgress(prog);
+
+        if (prog > 50) {
+            pb.getProgressDrawable().setColorFilter(0xFF00FF00,android.graphics.PorterDuff.Mode.MULTIPLY);
+        } else if (prog > 20) {
+            pb.getProgressDrawable().setColorFilter(0xFFFFFF00,android.graphics.PorterDuff.Mode.MULTIPLY);
+        }
     }
 }
