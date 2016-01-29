@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
     public static MySeekBar sbR;
     private static ToggleButton btConnect;
 
+    @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

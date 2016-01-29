@@ -28,8 +28,8 @@ public class MySeekBar extends SeekBar {
         }
 
         switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                break;
+            case MotionEvent.ACTION_DOWN:   // This is needed even it is empty to respond to a direct touch
+                break;
 //            case MotionEvent.ACTION_MOVE:
 //                break;
             case MotionEvent.ACTION_UP:
